@@ -1,0 +1,4 @@
+whenever replace database.. set permission for everyone to full in security.
+
+first copy to server from client
+theen again paste in folder

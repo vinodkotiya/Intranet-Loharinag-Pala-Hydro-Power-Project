@@ -1,0 +1,206 @@
+﻿<%@ Page Language="VB" AutoEventWireup="false" CodeFile="booking1.aspx.vb" Inherits="_Default" %>
+
+<%@ Register assembly="AjaxControlToolkit" namespace="AjaxControlToolkit" tagprefix="asp" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <style type="text/css">
+        .style3
+        {
+            height: 46px;
+            width: 201px;
+        }
+        .style7
+        {
+            height: 46px;
+            width: 200px;
+        }
+        </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+    
+        <asp:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server">
+        </asp:ToolkitScriptManager>
+        <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+            <ContentTemplate>
+                <asp:TextBox ID="txtDate" runat="server" ValidationGroup="group1"></asp:TextBox>
+                <asp:CalendarExtender ID="txtDate_CalendarExtender" runat="server" 
+                    Enabled="True" TargetControlID="txtDate">
+                </asp:CalendarExtender>
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" 
+                    ControlToValidate="txtDate" ErrorMessage="RequiredFieldValidator"></asp:RequiredFieldValidator>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+    
+    </div>
+  
+    <br />
+    <asp:Button ID="Button1" runat="server" Text="show status" 
+        CausesValidation="False" ValidationGroup="group1" />
+  
+    <asp:Button ID="Button4" runat="server" Text="print date status" 
+        CausesValidation="False" UseSubmitBehavior="False" ValidationGroup="group5" />
+  
+    <br />
+    <asp:UpdatePanel ID="UpdatePanel3" runat="server" Visible="False">
+        <ContentTemplate>
+           <table border="1">
+           <tr><td class="style3">
+            <asp:Label ID="s1" runat="server" Text="seat1" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cs1" runat="server" Visible="False" 
+                ValidationGroup="group2" />
+            </td>
+            <td class="style7">
+            <asp:Label ID="s4" runat="server" Text="seat4" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cs4" runat="server" />
+            </td> <td class="style3">
+            <asp:Label ID="s7" runat="server" Text="seat7" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cs7" runat="server" ValidationGroup="group2" 
+                Visible="False" />
+                </td><td class="style3" >
+            <asp:Label ID="s10" runat="server" Text="seat10" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cs10" runat="server" />
+            </td>
+            </tr> 
+               <caption>
+                   <br />
+                   <tr><td class="style3">
+                   <asp:Label ID="s2" runat="server" Text="seat2" Visible="False"></asp:Label>
+                   <asp:CheckBox ID="cs2" runat="server" ValidationGroup="group2" 
+                       Visible="False" />
+                       </td>
+                       <td class="style7">
+                   <asp:Label ID="s5" runat="server" Text="seat5" Visible="False"></asp:Label>
+                   <asp:CheckBox ID="cs5" runat="server" />
+                   </td><td class="style3">
+                   <asp:Label ID="s8" runat="server" Text="seat8" Visible="False"></asp:Label>
+                   <asp:CheckBox ID="cs8" runat="server" ValidationGroup="group2" 
+                       Visible="False" />
+                       </td><td class="style3">
+                   <asp:Label ID="s11" runat="server" Text="seat11" Visible="False"></asp:Label>
+                   <asp:CheckBox ID="cs11" runat="server" />
+                   </td>
+                   </tr>
+                   <caption>
+                       <br />
+                       <tr>
+                           <td class="style3">
+                               <asp:Label ID="s3" runat="server" Text="seat3" Visible="False"></asp:Label>
+                               <asp:CheckBox ID="cs3" runat="server" ValidationGroup="group2" 
+                                   Visible="False" />
+                           </td>
+                           <td class="style7">
+                               <asp:Label ID="s6" runat="server" Text="seat6" Visible="False"></asp:Label>
+                               <asp:CheckBox ID="cs6" runat="server" />
+                           </td>
+                           <td class="style3">
+                               <asp:Label ID="s9" runat="server" Text="seat9" Visible="False"></asp:Label>
+                               <asp:CheckBox ID="cs9" runat="server" ValidationGroup="group2" 
+                                   Visible="False" />
+                           </td>
+                           <td class="style3">
+                               <asp:Label ID="s12" runat="server" Text="seat12" Visible="False"></asp:Label>
+                               <asp:CheckBox ID="cs12" runat="server" />
+                           </td>
+                       </tr>
+                   </caption>
+               </caption>
+            </table>
+            <asp:RadioButtonList ID="rbDeclare" runat="server" AutoPostBack="True">
+                <asp:ListItem Value="1">On Tour With Approval</asp:ListItem>
+                <asp:ListItem Selected="True" Value="2">On Leave</asp:ListItem>
+                <asp:ListItem Value="3">Booking For Guest/ Family Member</asp:ListItem>
+            </asp:RadioButtonList>
+            <br />
+            
+        </ContentTemplate>
+    </asp:UpdatePanel>
+            <asp:Button ID="Button2" runat="server" Text="book" Visible="False" 
+                CausesValidation="False" ValidationGroup="group2" />
+    <br />
+    Your Booking
+    History<asp:GridView 
+        ID="gvHistorygrid" runat="server" PageSize="5" 
+               AllowPaging="True" 
+                 AutoGenerateColumns="False" 
+                        EmptyDataText="No records found" GridLines="None" 
+              BorderWidth="2px" Width="404px">
+        <Columns>
+            <asp:BoundField DataField="book_date" HeaderText="Date" >
+            <HeaderStyle HorizontalAlign="Left" />
+            </asp:BoundField>
+            <asp:CommandField HeaderText="Cancel Booking" ShowSelectButton="True" 
+                SelectText="Click to Cancel"  >
+            <HeaderStyle HorizontalAlign="Left" />
+            </asp:CommandField>
+        </Columns>
+    </asp:GridView>
+    <br />
+  
+    <br />
+    <asp:UpdatePanel ID="UpdatePanel2" runat="server" Visible="False">
+        <ContentTemplate>
+            <br />
+            <br />
+            <asp:Label ID="c1" runat="server" Text="seat1" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc1" runat="server" Visible="False" 
+                ValidationGroup="group3" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c4" runat="server" Text="seat4" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc4" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c7" runat="server" Text="seat7" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc7" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c10" runat="server" Text="seat10" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc10" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            <br />
+            <asp:Label ID="c2" runat="server" Text="seat2" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc2" runat="server" Visible="False" 
+                ValidationGroup="group3" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c5" runat="server" Text="seat5" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc5" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c8" runat="server" Text="seat8" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc8" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c11" runat="server" Text="seat11" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc11" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            <br />
+            <asp:Label ID="c3" runat="server" Text="seat3" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc3" runat="server" Visible="False" 
+                ValidationGroup="group3" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c6" runat="server" Text="seat6" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc6" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c9" runat="server" Text="seat9" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc9" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Label ID="c12" runat="server" Text="seat12" Visible="False"></asp:Label>
+            <asp:CheckBox ID="cc12" runat="server" ValidationGroup="group3" 
+                Visible="False" />
+            <br />
+        </ContentTemplate>
+    </asp:UpdatePanel>
+    <p>
+            <asp:Button ID="Button3" runat="server" Text="cancle" CausesValidation="False" 
+                ValidationGroup="group3" />
+        </p>
+    </form>
+</body>
+</html>

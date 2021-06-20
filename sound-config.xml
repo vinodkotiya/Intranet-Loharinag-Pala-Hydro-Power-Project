@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- SoundManager Flash configuration -->
+<!-- Sound IDs are referenced from JS -->
+
+<items baseHref="images/" defaultVol="100">
+
+ <sound id="ding" href="imsg.mp3" />
+
+
+</items>

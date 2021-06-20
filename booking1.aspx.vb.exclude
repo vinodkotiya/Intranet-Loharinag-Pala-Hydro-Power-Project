@@ -1,0 +1,773 @@
+﻿Imports System.Data
+Imports System.Data.SqlClient
+Imports databaseconn
+Imports filter
+
+Partial Class _Default
+    Inherits System.Web.UI.Page
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Not Page.IsPostBack Then
+            If String.IsNullOrEmpty(Request.Params("empdata")) Then
+                'Response.Redirect("http://191.254.186.1/login.aspx?requestedpage=http://localhost:49848/onlinebook/booking1.aspx?")
+                Response.Redirect("http://localhost:49848/onlinebook/booking1.aspx?empdata=009383*Vinod%20Kotiya*IT*SR.ENGINEER%28IT-FINANCE%29")
+            End If
+            Dim empdata() As String = Split(Request.Params("empdata"), "*")
+            Session("eid") = empdata(0)
+
+            ''Session("eid") = "101330"
+            ' Session("query") = "select * from table1 where seat1 = '" & Session("eid") & "' OR seat2 = '" & Session("eid") & "' OR seat3 = '" & Session("eid") & "' OR seat4 = '" & Session("eid") & "' OR seat5 = '" & Session("eid") & "' OR seat6 = '" & Session("eid") & "' OR seat7 = '" & Session("eid") & "' OR seat8 = '" & Session("eid") & "' OR seat9 = '" & Session("eid") & "' OR seat10 = '" & Session("eid") & "' OR seat11 = '" & Session("eid") & "' OR seat12 = '" & Session("eid") & "'"
+            Session("query") = "select * from table1 where LEFT(seat1, 6) = '" & Session("eid") & "' OR LEFT(seat2, 6) = '" & Session("eid") & "' OR LEFT(seat3, 6) = '" & Session("eid") & "' OR LEFT(seat4, 6) = '" & Session("eid") & "' OR LEFT(seat5, 6) = '" & Session("eid") & "' OR LEFT(seat6, 6) = '" & Session("eid") & "' OR LEFT(seat7, 6) = '" & Session("eid") & "' OR LEFT(seat8, 6) = '" & Session("eid") & "' OR LEFT(seat9, 6) = '" & Session("eid") & "' OR LEFT(seat10, 6) = '" & Session("eid") & "' OR LEFT(seat11, 6) = '" & Session("eid") & "' OR LEFT(seat12, 6) = '" & Session("eid") & "'"
+            rebindGridView(Session("query"), gvHistorygrid)
+        End If
+        '  Session("query") = "select * from table1 where seat1 = '" & Session("eid") & "' OR seat2 = '" & Session("eid") & "' OR seat3 = '" & Session("eid") & "' OR seat4 = '" & Session("eid") & "' OR seat5 = '" & Session("eid") & "' OR seat6 = '" & Session("eid") & "' OR seat7 = '" & Session("eid") & "' OR seat8 = '" & Session("eid") & "' OR seat9 = '" & Session("eid") & "' OR seat10 = '" & Session("eid") & "' OR seat11 = '" & Session("eid") & "' OR seat12 = '" & Session("eid") & "'"
+        Session("query") = "select * from table1 where LEFT(seat1, 6) = '" & Session("eid") & "' OR LEFT(seat2, 6) = '" & Session("eid") & "' OR LEFT(seat3, 6) = '" & Session("eid") & "' OR LEFT(seat4, 6) = '" & Session("eid") & "' OR LEFT(seat5, 6) = '" & Session("eid") & "' OR LEFT(seat6, 6) = '" & Session("eid") & "' OR LEFT(seat7, 6) = '" & Session("eid") & "' OR LEFT(seat8, 6) = '" & Session("eid") & "' OR LEFT(seat9, 6) = '" & Session("eid") & "' OR LEFT(seat10, 6) = '" & Session("eid") & "' OR LEFT(seat11, 6) = '" & Session("eid") & "' OR LEFT(seat12, 6) = '" & Session("eid") & "'"
+        rebindGridView(Session("query"), gvHistorygrid)
+        Button3.Visible = False 'cancel
+        If Not String.IsNullOrEmpty(Session("canceled")) Then
+            'lblMsg.Text = "yor ticket canceled"
+
+            Response.Write("<script language='javascript'>window.alert('your seats " + Session("canceled") + " have been canceled');</script>")
+            Session("canceled") = Nothing
+        End If
+    End Sub
+    Function check_date(ByVal dte As String) As Boolean
+        If (Not IsDate(dte)) Then
+            Response.Write("<script language='javascript'>window.alert(' please enter a valid date in format mm/dd/yyyy or use calender ');</script>")
+            Return False
+        End If
+        If (Date.Now > CDate(dte)) Then
+            Response.Write("<script language='javascript'>window.alert('your date should be greater then todays date ');</script>")
+            Return False
+        End If
+        Return True
+    End Function
+
+
+
+    Protected Sub Button1_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles Button1.Click
+        '' show status ' 'txtDate.Text = "hello"
+        If (check_date(txtDate.Text)) Then
+            Dim t2 As Date
+            t2 = CDate(txtDate.Text)
+
+            If showdata(t2) Then
+                'return tru if date found means data found so populate it
+                Button2.Enabled = True
+            Else
+                'date has been inserted , fields are blank, populate gain
+                insertRecord("INSERT INTO table1 VALUES ('" & t2 & "','1','1','1','1','1','1','1','1','1','1','1','1')")
+                showdata(t2)
+            End If
+            Button2.Visible = True 'book
+            UpdatePanel3.Visible = True
+
+            ' lblMsg.Text = "Showing Status for Date:" + txtDate.Text
+            'check date
+            'dateinsert
+            'populate ur checkbox using session var
+        Else
+
+        End If
+
+    End Sub
+    Function insertRecord(ByVal mysql As String) As Boolean
+
+        'Create Connection String
+        'Initlize all Database Varaibles
+        '  Dim DBConn As New SqlConnection("Data Source=.\SQLEXPRESS;AttachDbFilename=|DataDirectory|\intradb.mdf;Integrated Security=True;User Instance=True")
+
+        connection.Close()
+        connection.Open()
+        Dim sqlComm As SqlCommand
+        Dim sqlReader As SqlDataReader
+
+
+        Try
+            sqlComm = New SqlCommand(mysql, connection)
+            sqlReader = sqlComm.ExecuteReader()
+
+            sqlReader.Close()
+            connection.Close()
+
+            Return True
+
+
+        Catch e As Exception
+            'lblDebug.text = e.Message
+            connection.Close()
+            Return False
+        End Try
+        connection.Close()
+        insertRecord = True
+    End Function
+    Private Function showdata(ByVal bdate As Date) As Boolean
+        ' it will check if date exist . if date not exist than insert date else pick the data
+        connection.Close()
+        connection.Open()
+        Dim sqlComm As SqlCommand
+        Dim sqlReader As SqlDataReader
+        Dim dt As New DataTable()
+        Dim dataTableRowCount As Integer
+
+        Try
+            sqlComm = New SqlCommand("select book_date, seat1, seat2, seat3, seat4, seat5, seat6, seat7, seat8, seat9, seat10, seat11, seat12 from table1 WHERE (book_date = '" & bdate & "')", connection)
+            sqlReader = sqlComm.ExecuteReader()
+            dt.Load(sqlReader)
+            dataTableRowCount = dt.Rows.Count
+
+            If dataTableRowCount = 1 Then
+
+                ' txtDate.Text = "availabe"
+                Session("seat1") = dt.Rows(0).Item("seat1")
+                Session("seat2") = dt.Rows(0).Item("seat2")
+                Session("seat3") = dt.Rows(0).Item("seat3")
+                Session("seat4") = dt.Rows(0).Item("seat4")
+                Session("seat5") = dt.Rows(0).Item("seat5")
+                Session("seat6") = dt.Rows(0).Item("seat6")
+                Session("seat7") = dt.Rows(0).Item("seat7")
+                Session("seat8") = dt.Rows(0).Item("seat8")
+                Session("seat9") = dt.Rows(0).Item("seat9")
+                Session("seat10") = dt.Rows(0).Item("seat10")
+                Session("seat11") = dt.Rows(0).Item("seat11")
+                Session("seat12") = dt.Rows(0).Item("seat12")
+                If Session("seat1") = "1" Then
+                    s1.Visible = True
+
+                    cs1.Text = "availabe"
+                    cs1.Enabled = True
+                    cs1.Visible = True
+                Else
+
+                    s1.Visible = True
+                    cs1.Text = "Already booked by : " + Session("seat1") + " "    '+  getnamecell(session("seat1"))
+                    cs1.Enabled = False
+                    cs1.Visible = True
+                End If
+                If Session("seat2") = "1" Then
+                    s2.Visible = True
+
+                    cs2.Text = "availabe"
+                    cs2.Enabled = True
+                    cs2.Visible = True
+
+                Else
+
+                    s2.Visible = True
+                    cs2.Text = "Already booked by : " + Session("seat2")
+                    cs2.Enabled = False
+                    cs2.Visible = True
+                End If
+                If Session("seat3") = "1" Then
+                    s3.Visible = True
+                    cs3.Text = "availabe"
+                    cs3.Enabled = True
+                    cs3.Visible = True
+                Else
+                    s3.Visible = True
+                    cs3.Text = "Already booked by : " + Session("seat3")
+                    cs3.Enabled = False
+                    cs3.Visible = True
+                End If
+                If Session("seat4") = "1" Then
+                    s4.Visible = True
+
+                    cs4.Text = "availabe"
+                    cs4.Enabled = True
+                    cs4.Visible = True
+                Else
+                    s4.Visible = True
+                    cs4.Text = "Already booked by : " + Session("seat1")
+                    cs4.Enabled = False
+                    cs4.Visible = True
+                End If
+                If Session("seat5") = "1" Then
+                    s5.Visible = True
+
+                    cs5.Text = "availabe"
+                    cs5.Enabled = True
+                    cs5.Visible = True
+                Else
+                    s5.Visible = True
+                    cs5.Text = "Already booked by : " + Session("seat5")
+                    cs5.Enabled = False
+                    cs5.Visible = True
+                End If
+                If Session("seat6") = "1" Then
+                    s6.Visible = True
+
+                    cs6.Text = "availabe"
+                    cs6.Enabled = True
+                    cs6.Visible = True
+                Else
+                    s6.Visible = True
+                    cs6.Text = "Already booked by : " + Session("seat6")
+                    cs6.Enabled = False
+                    cs6.Visible = True
+                End If
+                If Session("seat7") = "1" Then
+                    s7.Visible = True
+
+                    cs7.Text = "availabe"
+                    cs7.Enabled = True
+                    cs7.Visible = True
+                Else
+                    s7.Visible = True
+                    cs7.Text = "Already booked by : " + Session("seat7")
+                    cs7.Enabled = False
+                    cs7.Visible = True
+                End If
+                If Session("seat8") = "1" Then
+                    s8.Visible = True
+
+                    cs8.Text = "availabe"
+                    cs8.Enabled = True
+                    cs8.Visible = True
+                Else
+                    s8.Visible = True
+                    cs8.Text = "Already booked by : " + Session("seat8")
+                    cs8.Enabled = False
+                    cs8.Visible = True
+                End If
+                If Session("seat9") = "1" Then
+                    s9.Visible = True
+
+                    cs9.Text = "availabe"
+                    cs9.Enabled = True
+                    cs9.Visible = True
+                Else
+                    s9.Visible = True
+                    cs9.Text = "Already booked by : " + Session("seat9")
+                    cs9.Enabled = False
+                    cs9.Visible = True
+                End If
+                If Session("seat10") = "1" Then
+                    s10.Visible = True
+
+                    cs10.Text = "availabe"
+                    cs10.Enabled = True
+                    cs10.Visible = True
+                Else
+                    s10.Visible = True
+                    cs10.Text = "Already booked by : " + Session("seat10")
+                    cs10.Enabled = False
+                    cs10.Visible = True
+                End If
+                If Session("seat11") = "1" Then
+                    s11.Visible = True
+
+                    cs11.Text = "availabe"
+                    cs11.Enabled = True
+                    cs11.Visible = True
+                Else
+                    s11.Visible = True
+                    cs11.Text = "Already booked by : " + Session("seat11")
+                    cs11.Enabled = False
+                    cs11.Visible = True
+                End If
+                If Session("seat12") = "1" Then
+                    s12.Visible = True
+
+                    cs12.Text = "availabe"
+                    cs12.Enabled = True
+                    cs12.Visible = True
+                Else
+                    s12.Visible = True
+                    cs12.Text = "Already booked by : " + Session("seat12")
+                    cs12.Enabled = False
+                    cs12.Visible = True
+                End If
+                Session.Timeout = 30
+                connection.Close()
+
+
+
+                Return True
+            Else
+
+                ' date doesnt exist s o exit
+
+                connection.Close()
+                Return False
+            End If
+            sqlReader.Close()
+        Catch e As Exception
+            'lblDebug.text = e.Message
+            connection.Close()
+            Return False
+        End Try
+        connection.Close()
+    End Function
+
+    Protected Sub TextBox1_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles txtDate.TextChanged
+
+    End Sub
+    Function update(ByVal bdate As Date) As Boolean
+
+        Dim ab As String
+        Dim cd As String
+        Dim ef As String
+        Dim eid_declare As String = Session("eid") + "#" + rbDeclare.SelectedValue
+        ef = ""
+        ab = "update table1 set"
+        If cs1.Checked = True Then
+            ef = " seat1 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs1.Checked = False
+
+        End If
+        If cs2.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat2 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs2.Checked = False
+        End If
+        If cs3.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat3 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs3.Checked = False
+        End If
+        If cs4.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat4 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs4.Checked = False
+        End If
+        If cs5.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat5 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs5.Checked = False
+        End If
+        If cs6.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat6 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs6.Checked = False
+        End If
+        If cs7.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat7 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs7.Checked = False
+        End If
+        If cs8.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat8 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs8.Checked = False
+        End If
+        If cs9.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat9 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs9.Checked = False
+        End If
+        If cs10.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat10 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs10.Checked = False
+        End If
+        If cs11.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat11 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs11.Checked = False
+        End If
+        If cs12.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat12 =" + "'" + eid_declare + "'"
+            ab = ab + ef
+            cs12.Checked = False
+        End If
+        cd = DateAndTime.DateValue(bdate.ToString)
+        ab = ab + " where book_date= " + "'" + cd + "'"
+        ' CheckBox1.Text = ab
+        If insertRecord(ab) Then
+            'lblMsg.Text = "Booked"
+            Return True
+        Else
+            ' lblMsg.Text = "Not Booked"
+            Return False
+        End If
+    End Function
+    Protected Sub Button2_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles Button2.Click
+        '' booking button
+        Dim t2 As Date
+
+        t2 = DateAndTime.DateValue(txtDate.Text)
+        Dim t3 As Boolean
+        t3 = update(t2)
+        If t3 Then
+            showdata(t2)
+            UpdatePanel3.Visible = True
+            rebindGridView(Session("query"), gvHistorygrid)
+            ' lblMsg.Text = " Your seat have been booked"
+            Button2.Enabled = False
+        End If
+
+    End Sub
+
+
+
+    Protected Sub gvHistorygrid_PageIndexChanging(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.GridViewPageEventArgs) Handles gvHistorygrid.PageIndexChanging
+        If gvHistorygrid.DataSource.GetType().ToString = "System.Data.DataTable" Then
+            gvHistorygrid.DataSource = SortDataTable(gvHistorygrid.DataSource, True)
+            gvHistorygrid.PageIndex = e.NewPageIndex
+            Session("CurrentPage") = e.NewPageIndex
+            gvHistorygrid.DataBind()
+
+        End If
+    End Sub
+    'Protected Sub gvHistorygrid_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles gvHistorygrid.SelectedIndexChanged
+    '    ' Get the currently selected row using the SelectedRow property.
+    '    Dim row As GridViewRow = gvHistorygrid.SelectedRow
+
+    '    ' Display the company name from the selected row.
+    '    ' In this example, the third column (index 2) contains
+    '    ' the company name.
+    '    txtDate.Text = row.Cells(1).Text
+    '    ' Bind current data
+    '    gvHistorygrid.DataSource = SortDataTable(gvHistorygrid.DataSource, True)
+    '    gvHistorygrid.PageIndex = Session("CurrentPage")
+    '    gvHistorygrid.DataBind()
+
+    '    ' Clear session variables
+    '    Session("CurrentPage") = Nothing
+    '    Session("SortExpression") = Nothing
+    '    Session("CurrentQuery") = Nothing
+
+    'End Sub
+
+    Protected Sub gvHistorygrid_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles gvHistorygrid.SelectedIndexChanged
+        Dim txt As String
+        Dim cd As Date
+        txt = gvHistorygrid.SelectedRow.Cells(0).Text
+        txtDate.Text = txt
+        Session("candate") = txt
+        UpdatePanel3.Visible = False
+        UpdatePanel2.Visible = True
+        cd = DateAndTime.DateValue(txt)
+        showdata1(cd)
+        Button3.Visible = True 'cancel
+
+    End Sub
+    Private Function showdata1(ByVal bdate As Date) As Boolean
+        ' it will check if date exist . if date not exist than insert date else pick the data
+        connection.Close()
+        connection.Open()
+        Dim sqlComm As SqlCommand
+        Dim sqlReader As SqlDataReader
+        Dim dt As New DataTable()
+        Dim dataTableRowCount As Integer
+
+        Try
+            sqlComm = New SqlCommand("select book_date,seat1, seat2, seat3, seat4, seat5, seat6, seat7, seat8, seat9, seat10, seat11, seat12 from table1 WHERE (book_date = '" & bdate & "')", connection)
+            sqlReader = sqlComm.ExecuteReader()
+            dt.Load(sqlReader)
+            dataTableRowCount = dt.Rows.Count
+
+            If dataTableRowCount = 1 Then
+
+                ' txtDate.Text = "availabe"
+
+                Session("seat1") = Left(dt.Rows(0).Item("seat1"), 6)
+                Session("seat2") = Left(dt.Rows(0).Item("seat2"), 6)
+                Session("seat3") = Left(dt.Rows(0).Item("seat3"), 6)
+                Session("seat4") = Left(dt.Rows(0).Item("seat4"), 6)
+                Session("seat5") = Left(dt.Rows(0).Item("seat5"), 6)
+                Session("seat6") = Left(dt.Rows(0).Item("seat6"), 6)
+                Session("seat7") = Left(dt.Rows(0).Item("seat7"), 6)
+                Session("seat8") = Left(dt.Rows(0).Item("seat8"), 6)
+                Session("seat9") = Left(dt.Rows(0).Item("seat9"), 6)
+                Session("seat10") = Left(dt.Rows(0).Item("seat10"), 6)
+                Session("seat11") = Left(dt.Rows(0).Item("seat11"), 6)
+                Session("seat12") = Left(dt.Rows(0).Item("seat12"), 6)
+                If Session("seat1") = session("eid") Then
+                    c1.Visible = True
+
+                    cc1.Text = "cancle"
+                    cc1.Enabled = True
+                    cc1.Visible = True
+                    ' Else
+                    '    s1.Visible = True
+                    '   CheckBox1.Text = "Already booked by : " + Session("seat1")
+                    '  CheckBox1.Enabled = False
+                    ' CheckBox1.Visible = True
+                End If
+                If Session("seat2") = session("eid") Then
+                    c2.Visible = True
+
+                    cc2.Text = "cancle"
+                    cc2.Enabled = True
+                    cc2.Visible = True
+
+                    ' Else
+                    '    s2.Visible = True
+                    '   CheckBox2.Text = "Already booked by : " + Session("seat2")
+                    '  CheckBox2.Enabled = False
+                    ' CheckBox2.Visible = True
+                End If
+                If Session("seat3") = session("eid") Then
+                    c3.Visible = True
+                    cc3.Text = "cancle"
+                    cc3.Enabled = True
+                    cc3.Visible = True
+                    'Else
+                    '   s3.Visible = True
+                    '  CheckBox3.Text = "Already booked by : " + Session("seat3")
+                    ' CheckBox3.Enabled = False
+                    'CheckBox3.Visible = True
+                End If
+                If Session("seat4") = Session("eid") Then
+                    c4.Visible = True
+                    cc4.Text = "cancle"
+                    cc4.Enabled = True
+                    cc4.Visible = True
+
+                End If
+                If Session("seat5") = Session("eid") Then
+                    c5.Visible = True
+                    cc5.Text = "cancle"
+                    cc5.Enabled = True
+                    cc5.Visible = True
+
+                End If
+                If Session("seat6") = Session("eid") Then
+                    c6.Visible = True
+                    cc6.Text = "cancle"
+                    cc6.Enabled = True
+                    cc6.Visible = True
+
+                End If
+                If Session("seat7") = Session("eid") Then
+                    c7.Visible = True
+                    cc7.Text = "cancle"
+                    cc7.Enabled = True
+                    cc7.Visible = True
+
+                End If
+                If Session("seat8") = Session("eid") Then
+                    c8.Visible = True
+                    cc8.Text = "cancle"
+                    cc8.Enabled = True
+                    cc8.Visible = True
+
+                End If
+                If Session("seat9") = Session("eid") Then
+                    c9.Visible = True
+                    cc9.Text = "cancle"
+                    cc9.Enabled = True
+                    cc9.Visible = True
+
+                End If
+                If Session("seat10") = Session("eid") Then
+                    c10.Visible = True
+                    cc10.Text = "cancle"
+                    cc10.Enabled = True
+                    cc10.Visible = True
+
+                End If
+                If Session("seat11") = Session("eid") Then
+                    c11.Visible = True
+                    cc11.Text = "cancle"
+                    cc11.Enabled = True
+                    cc11.Visible = True
+
+                End If
+                If Session("seat12") = Session("eid") Then
+                    c12.Visible = True
+                    cc12.Text = "cancle"
+                    cc12.Enabled = True
+                    cc12.Visible = True
+
+                End If
+                Session.Timeout = 30
+                connection.Close()
+                Button2.Visible = True
+
+
+                Return True
+            Else
+
+                ' insertRecord("INSERT INTO table1 VALUES ('" & bdate & "','1','1','1')")
+
+                connection.Close()
+                Return False
+            End If
+            sqlReader.Close()
+        Catch e As Exception
+            'lblDebug.text = e.Message
+            connection.Close()
+            Return False
+        End Try
+        connection.Close()
+    End Function
+    Function seatcancellation(ByVal bdate As Date) As String
+        ' take date and return query
+        Dim ab As String
+        Dim cd As String
+        Dim ef As String
+        ef = ""
+        ab = "update table1 set"
+        If cc1.Checked = True Then
+            ef = " seat1 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc1.Checked = False
+
+        End If
+        If cc2.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat2 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc2.Checked = False
+        End If
+        If cc3.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat3 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc3.Checked = False
+        End If
+        If cc4.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat4 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc4.Checked = False
+        End If
+        If cc5.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat5 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc5.Checked = False
+        End If
+        If cc6.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat6 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc6.Checked = False
+        End If
+        If cc7.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat7 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc7.Checked = False
+        End If
+        If cc8.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat8 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc8.Checked = False
+        End If
+        If cc9.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat9 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc9.Checked = False
+        End If
+        If cc10.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat10 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc10.Checked = False
+        End If
+        If cc11.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat11 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc11.Checked = False
+        End If
+        If cc12.Checked = True Then
+            If ef <> "" Then
+                ab = ab + ","
+            End If
+            ef = " seat12 =" + "'" + "1" + "'"
+            ab = ab + ef
+            cc12.Checked = False
+        End If
+        cd = DateAndTime.DateValue(bdate.ToString)
+        ab = ab + " where book_date= " + "'" + cd + "'"
+        Return ab
+    End Function
+   
+    Protected Sub Button3_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles Button3.Click
+        Dim updatequery As String
+        updatequery = seatcancellation(Session("candate"))
+        UpdatePanel2.Visible = False
+        If (insertRecord(updatequery)) Then
+
+            ' lblMsg .Text = "Your seats have been canceled succesfully"
+        Else
+
+            ' lblMsg.Text = "Not able to cancel, error occured"
+        End If
+        'rebindGridView(Session("query"), gvHistorygrid)
+        'Response.Write("<script language='javascript'>window.alert('Please enter file name');</script>")
+
+        Dim st As String = Replace(Right(updatequery, Len(updatequery) - 17), "='1'", "  ")
+        st = Left(st, Len(st) - 30)
+        Session("canceled") = st
+        Response.Redirect("booking1.aspx")
+
+    End Sub
+
+   
+    Protected Sub Button4_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles Button4.Click
+        If (check_date1(txtDate.Text)) Then
+            Response.Redirect("http://localhost:49848/onlinebook/print.aspx?bookdate=" & txtDate.Text)
+        End If
+    End Sub
+
+   
+    Function check_date1(ByVal dte As String) As Boolean
+        If (Not IsDate(dte)) Then
+            Response.Write("<script language='javascript'>window.alert(' please enter a valid date in format mm/dd/yyyy or use calender ');</script>")
+            Return False
+        End If
+
+        Return True
+    End Function
+End Class
+

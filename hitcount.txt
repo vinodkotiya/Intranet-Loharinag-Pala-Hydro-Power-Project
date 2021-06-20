@@ -1,0 +1,34 @@
+PrivateSub Page_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) HandlesMyBase.Load
+
+IfNot Page.IsPostBack Then
+Dim nCount As Int32 = 0
+nCount = GetCounterValue()
+lblTest.Text = nCount.ToString()
+EndIf
+EndSub
+
+PrivateFunction GetCounterValue() As Int32
+
+Dim ctrFile As StreamReader
+Dim ctrFileW As FileStream
+Dim sw As StreamWriter
+Dim strPath AsString = Server.MapPath("indexcount.txt")
+Dim strCounterContents AsString
+Dim nCounter As Int32
+ 
+If (File.Exists(strPath)) Then
+ctrFile = File.OpenText(strPath)
+strCounterContents = ctrFile.ReadLine().ToString()
+ctrFile.Close()
+nCounter = Convert.ToInt32(strCounterContents)
+Else
+nCounter = 0
+EndIf
+nCounter += 1
+ctrFileW = New FileStream(strPath, FileMode.OpenOrCreate, FileAccess.Write)
+sw = New StreamWriter(ctrFileW)
+sw.WriteLine(Convert.ToString(nCounter))
+sw.Close()
+ctrFileW.Close()
+Return nCounter
+EndFunction
